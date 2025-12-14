@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lyckohjulet 1984</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Retro Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --nes-black: #000000;
+        --nes-white: #ffffff;
+        --nes-red: #e70000;
+        --nes-green: #00b500;
+        --nes-blue: #0000eb;
+        --nes-yellow: #fbbc04;
+        --board-green: #004400;
+        --board-border: #fbbc04;
+      }
+
+      body {
+        background-color: var(--nes-black);
+        color: var(--nes-white);
+        font-family: "Press Start 2P", cursive;
+        overflow-x: hidden;
+        touch-action: manipulation;
+        user-select: none;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* --- START SCREEN --- */
+      #start-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .logo-title {
+        font-size: clamp(20px, 5vw, 60px);
+        color: var(--nes-yellow);
+        text-shadow: 4px 4px var(--nes-red);
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+
+      .copyright {
+        font-size: clamp(8px, 2vw, 14px);
+        color: #fff;
+        margin-top: 50px;
+      }
+
+      .press-start {
+        margin-top: 40px;
+        font-size: clamp(12px, 3vw, 20px);
+        color: var(--nes-green);
+      }
+
+      /* --- SPELBRÄDET (GRID SYSTEM) --- */
+      .board-frame {
+        background-color: var(--board-green);
+        border: 8px solid var(--board-border);
+        border-radius: 4px;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        padding: 10px;
+        display: grid;
+        grid-template-rows: repeat(4, 1fr);
+        gap: 4px;
+        width: 100%;
+        max-width: 700px;
+        aspect-ratio: 16/9;
+      }
+
+      .board-row {
+        display: grid;
+        grid-template-columns: repeat(14, 1fr);
+        gap: 2px;
+      }
+
+      .board-cell {
+        background-color: var(--board-green);
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(8px, 2.5vw, 24px);
+        color: black;
+        position: relative;
+      }
+
+      .board-cell.active {
+        background-color: var(--nes-white);
+        border: 2px solid #888;
+        box-shadow: inset 2px 2px 0px #ddd, inset -2px -2px 0px #444;
+      }
+
+      .letter-content {
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .letter-content.visible {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* --- UI ELEMENT --- */
+      .key {
+        background-color: var(--nes-blue);
+        border: 2px solid var(--nes-white);
+        color: var(--nes-white);
+        box-shadow: 2px 2px 0px #000;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      .key:active {
+        transform: translate(2px, 2px);
+        box-shadow: none;
+      }
+      .key:disabled {
+        background-color: #333;
+        color: #555;
+        border-color: #555;
+        cursor: not-allowed;
+        transform: translate(2px, 2px);
+        box-shadow: none;
+      }
+      .key.vowel {
+        background-color: var(--nes-red);
+      }
+
+      .retro-btn {
+        border: 3px solid white;
+        padding: 10px;
+        font-family: inherit;
+        text-transform: uppercase;
+        font-size: 10px;
+        cursor: pointer;
+      }
+      .retro-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      #wheel-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+      }
+      @media (min-width: 768px) {
+        #wheel-container {
+          width: 280px;
+          height: 280px;
+        }
+        .retro-btn {
+          font-size: 14px;
+          padding: 15px;
+        }
+      }
+
+      #arrow {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 20px solid white;
+        z-index: 10;
+      }
+
+      .blink {
+        animation: blinker 1s steps(2, start) infinite;
+      }
+      @keyframes blinker {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* CRT Overlay */
+      .scanlines {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.06),
+            rgba(0, 255, 0, 0.02),
+            rgba(0, 0, 255, 0.06)
+          );
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      #game-container {
+        display: none; /* Dölj spelet i början */
+        flex-grow: 1;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scanlines"></div>
+
+    <!-- STARTSKÄRM -->
+    <div id="start-screen" onclick="startGameFlow()">
+      <div class="logo-title">LYCKO<br />HJULET</div>
+
+      <div class="press-start blink">TRYCK PÅ START</div>
+      <!-- "PRESS START" -->
+
+      <div class="copyright">
+        TM AND © 1984 SVT<br /><br />
+        LICENSED BY NINTENDO<br />
+        FOR PLAY ON THE<br />
+        NES
+      </div>
+    </div>
+
+    <!-- SPELCONTAINER (Dold först) -->
+    <div id="game-container">
+      <!-- Header -->
+      <header
+        class="w-full bg-blue-900 border-b-4 border-white p-3 text-center mb-2"
+      >
+        <h1
+          class="text-yellow-400 text-lg md:text-2xl"
+          style="text-shadow: 2px 2px #ff0000"
+        >
+          LYCKOHJULET
+        </h1>
+      </header>
+
+      <!-- Main Game Area -->
+      <main
+        class="w-full max-w-5xl px-2 flex flex-col items-center flex-grow justify-start"
+      >
+        <!-- SPELBRÄDET -->
+        <div id="game-board" class="board-frame mb-4">
+          <!-- Rader genereras av JS -->
+        </div>
+
+        <!-- INFO RAD -->
+        <div
+          class="flex justify-between w-full max-w-[700px] mb-4 text-xs md:text-sm"
+        >
+          <div class="bg-black border border-white p-2 text-cyan-400">
+            KAT: <span id="category" class="text-white">...</span>
+          </div>
+          <div class="bg-black border border-white p-2 text-yellow-400">
+            KR: <span id="score" class="text-white">0</span>
+          </div>
+        </div>
+
+        <!-- CONTROLS CONTAINER -->
+        <div
+          class="flex flex-col md:flex-row gap-4 w-full items-center justify-center"
+        >
+          <!-- Hjul -->
+          <div class="flex-none order-2 md:order-1">
+            <div id="wheel-container">
+              <div id="arrow"></div>
+              <canvas id="wheelCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Panel -->
+          <div
+            class="flex-grow flex flex-col gap-3 w-full max-w-lg order-1 md:order-2"
+          >
+            <!-- Meddelande -->
+            <div
+              class="bg-black border-2 border-green-500 p-3 min-h-[60px] flex items-center justify-center text-center"
+            >
+              <p
+                id="message"
+                class="text-green-500 text-xs md:text-sm leading-relaxed"
+              >
+                VÄLKOMMEN! KLICKA PÅ SNURRA.
+              </p>
+            </div>
+
+            <!-- Knappar -->
+            <div class="flex gap-2 justify-center">
+              <button
+                id="btn-spin"
+                class="retro-btn bg-yellow-500 text-black hover:bg-yellow-400"
+              >
+                SNURRA
+              </button>
+              <button
+                id="btn-solve"
+                class="retro-btn bg-cyan-600 text-white hover:bg-cyan-500"
+              >
+                LÖS
+              </button>
+              <button
+                id="btn-vowel"
+                class="retro-btn bg-red-600 text-white hover:bg-red-500"
+                disabled
+              >
+                KÖP VOKAL (250)
+              </button>
+            </div>
+
+            <!-- Tangentbord -->
+            <div
+              id="keyboard"
+              class="flex flex-wrap justify-center gap-1 mt-2"
+            ></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Lös Modal -->
+    <div
+      id="solve-modal"
+      class="fixed inset-0 z-50 bg-black bg-opacity-90 hidden flex items-center justify-center"
+    >
+      <div
+        class="bg-blue-800 border-4 border-yellow-400 p-6 w-11/12 max-w-md text-center"
+      >
+        <h2 class="text-yellow-400 mb-4">SKRIV LÖSNINGEN:</h2>
+        <input
+          type="text"
+          id="solve-input"
+          class="w-full p-3 mb-4 text-black font-bold uppercase"
+          autocomplete="off"
+        />
+        <div class="flex justify-center gap-4">
+          <button id="btn-solve-cancel" class="retro-btn bg-red-500">
+            AVBRYT
+          </button>
+          <button id="btn-solve-confirm" class="retro-btn bg-green-500">
+            GISSA
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- DATA ---
+      const PUZZLES = [
+        { text: "DET VAR BÄTTRE FÖRR", category: "ORDSPRÅK" },
+        { text: "KÖTTBULLAR MED MOS", category: "MATRÄTT" },
+        { text: "EN IDOG MYRA", category: "DJUR" },
+        { text: "GLAD SOM EN SPELMAN", category: "IDIOM" },
+        { text: "HELA HAVET STORMAR", category: "LEK" },
+        { text: "ATT VARA ELLER INTE VARA", category: "CITAT" },
+        { text: "PANNKAKSTÅRTA", category: "MAT & DRYCK" },
+        { text: "TOMTEN ÄR FAR TILL ALLA BARNEN", category: "FILMTITEL" },
+      ];
+
+      const WHEEL_SEGMENTS = [
+        { val: 500, color: "#F00" },
+        { val: 200, color: "#00F" },
+        { val: 0, text: "BANKRUTT", color: "#000", textCol: "#FFF" },
+        { val: 600, color: "#0B0" },
+        { val: 300, color: "#FF0" },
+        { val: 400, color: "#0FF" },
+        { val: 0, text: "TURA OM", color: "#FFF", textCol: "#000" },
+        { val: 750, color: "#F0F" },
+        { val: 1500, color: "#F00" },
+        { val: 250, color: "#00F" },
+        { val: 900, color: "#0B0" },
+        { val: 350, color: "#FF0" },
+      ];
+
+      const ROWS = 4;
+      const COLS = 14;
+      const VOWELS = ["A", "E", "I", "O", "U", "Y", "Å", "Ä", "Ö"];
+      const CONSONANTS = "BCDFGHJKLMNPQRSTVWXZ".split("");
+      const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ".split("");
+
+      // --- STATE ---
+      let state = {
+        puzzleIndex: 0,
+        puzzle: {},
+        guessed: [],
+        score: 0,
+        wheelVal: 0,
+        spinning: false,
+        waitingForConsonant: false,
+        canBuyVowel: false,
+      };
+
+      // --- DOM ---
+      const boardEl = document.getElementById("game-board");
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+      const msgEl = document.getElementById("message");
+      const scoreEl = document.getElementById("score");
+      const catEl = document.getElementById("category");
+      const keybEl = document.getElementById("keyboard");
+
+      // --- STARTUP LOGIC ---
+      function startGameFlow() {
+        // Init ljudcontext vid första klick
+        initAudio();
+        playSound("start");
+
+        // Blinkande effekt på starttexten innan byte
+        const startText = document.querySelector(".press-start");
+        startText.style.animation = "none";
+        startText.style.opacity = "1";
+
+        setTimeout(() => {
+          document.getElementById("start-screen").style.display = "none";
+          document.getElementById("game-container").style.display = "flex";
+          initGame();
+        }, 1000);
+      }
+
+      // --- INIT ---
+      function initGame() {
+        createBoardGrid();
+        createKeyboard();
+        loadPuzzle();
+        resizeCanvas();
+        drawWheel();
+        window.addEventListener("resize", () => {
+          resizeCanvas();
+          drawWheel();
+        });
+      }
+
+      function resizeCanvas() {
+        const container = document.getElementById("wheel-container");
+        if (container) {
+          canvas.width = container.clientWidth;
+          canvas.height = container.clientHeight;
+        }
+      }
+
+      // --- BOARD LOGIC (TV STYLE) ---
+      function createBoardGrid() {
+        boardEl.innerHTML = "";
+        for (let r = 0; r < ROWS; r++) {
+          const rowDiv = document.createElement("div");
+          rowDiv.className = "board-row";
+          for (let c = 0; c < COLS; c++) {
+            const cell = document.createElement("div");
+            cell.className = "board-cell";
+            cell.id = `cell-${r}-${c}`;
+
+            const span = document.createElement("div");
+            span.className = "letter-content";
+            cell.appendChild(span);
+
+            rowDiv.appendChild(cell);
+          }
+          boardEl.appendChild(rowDiv);
+        }
+      }
+
+      function loadPuzzle() {
+        // Reset
+        state.puzzle = PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
+        state.guessed = [];
+        state.score = 0;
+        state.waitingForConsonant = false;
+        updateScore();
+        catEl.textContent = state.puzzle.category;
+        toggleInputs(true, false);
+
+        // CLEAR BOARD
+        document.querySelectorAll(".board-cell").forEach((c) => {
+          c.classList.remove("active");
+          c.querySelector(".letter-content").textContent = "";
+          c.querySelector(".letter-content").classList.remove("visible");
+        });
+
+        // LAYOUT ALGORITHM
+        const words = state.puzzle.text.split(" ");
+
+        let currentLineText = "";
+        let lines = [];
+
+        // Bygg rader
+        for (let w of words) {
+          if ((currentLineText + w).length <= COLS) {
+            currentLineText += (currentLineText.length > 0 ? " " : "") + w;
+          } else {
+            lines.push(currentLineText);
+            currentLineText = w;
+          }
+        }
+        if (currentLineText) lines.push(currentLineText);
+
+        // Centrera raderna
+        let startRow = Math.floor((ROWS - lines.length) / 2);
+        lines.forEach((line, i) => {
+          const r = startRow + i;
+          const startCol = Math.floor((COLS - line.length) / 2);
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char !== " ") {
+              const cellId = `cell-${r}-${startCol + j}`;
+              const cell = document.getElementById(cellId);
+              if (cell) {
+                cell.classList.add("active");
+                cell.dataset.char = char;
+              }
+            }
+          }
+        });
+
+        updateKeyboard();
+      }
+
+      function revealLetter(char) {
+        let count = 0;
+        document.querySelectorAll(".board-cell.active").forEach((cell) => {
+          if (cell.dataset.char === char) {
+            const content = cell.querySelector(".letter-content");
+            content.textContent = char;
+            content.classList.add("visible");
+            count++;
+          }
+        });
+        return count;
+      }
+
+      function revealAll() {
+        document.querySelectorAll(".board-cell.active").forEach((cell) => {
+          const content = cell.querySelector(".letter-content");
+          content.textContent = cell.dataset.char;
+          content.classList.add("visible");
+        });
+      }
+
+      // --- WHEEL LOGIC ---
+      let angle = 0;
+      let speed = 0;
+
+      function drawWheel() {
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const r = w / 2 - 5;
+        const segSize = (2 * Math.PI) / WHEEL_SEGMENTS.length;
+
+        ctx.clearRect(0, 0, w, h);
+
+        WHEEL_SEGMENTS.forEach((seg, i) => {
+          const a1 = angle + i * segSize;
+          const a2 = a1 + segSize;
+
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, r, a1, a2);
+          ctx.fillStyle = seg.color;
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(a1 + segSize / 2);
+          ctx.textAlign = "right";
+          ctx.fillStyle = seg.textCol || "#FFF";
+          ctx.font = `bold ${w / 20}px Arial`;
+          const label = seg.text ? seg.text : seg.val;
+          ctx.fillText(label, r - 10, 5);
+          ctx.restore();
+        });
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, w / 15, 0, 2 * Math.PI);
+        ctx.fillStyle = "#FFD700";
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      function spin() {
+        if (state.spinning) return;
+        state.spinning = true;
+        toggleInputs(false, false);
+        msgEl.textContent = "HJULET SNURRAR...";
+
+        speed = 0.2 + Math.random() * 0.4;
+        requestAnimationFrame(animateSpin);
+      }
+
+      function animateSpin() {
+        angle += speed;
+        speed *= 0.98;
+        drawWheel();
+
+        if (speed > 0.005) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          state.spinning = false;
+          calcResult();
+        }
+      }
+
+      function calcResult() {
+        const segSize = (2 * Math.PI) / WHEEL_SEGMENTS.length;
+        const totalRot = angle % (2 * Math.PI);
+        let effectiveAngle = (3 * Math.PI) / 2 - totalRot;
+        if (effectiveAngle < 0) effectiveAngle += 2 * Math.PI;
+
+        const idx = Math.floor(effectiveAngle / segSize);
+        const result = WHEEL_SEGMENTS[idx];
+
+        handleSpinResult(result);
+      }
+
+      // --- GAMEPLAY LOGIC ---
+      function handleSpinResult(res) {
+        state.wheelVal = res.val;
+
+        if (res.text === "BANKRUTT") {
+          state.score = 0;
+          updateScore();
+          msgEl.textContent = "BANKRUTT! ÅH NEJ!";
+          playSound("bad");
+          setTimeout(() => {
+            toggleInputs(true, false);
+            msgEl.textContent = "SNURRA IGEN";
+          }, 2000);
+        } else if (res.text === "TURA OM") {
+          msgEl.textContent = "DU MISSAR DIN TUR";
+          playSound("bad");
+          setTimeout(() => {
+            toggleInputs(true, false);
+            msgEl.textContent = "SNURRA IGEN";
+          }, 2000);
+        } else {
+          msgEl.textContent = `${res.val} KR! VÄLJ EN KONSONANT.`;
+          state.waitingForConsonant = true;
+          playSound("good");
+          toggleInputs(false, false);
+          enableConsonants();
+        }
+      }
+
+      function createKeyboard() {
+        keybEl.innerHTML = "";
+        ALPHABET.forEach((char) => {
+          const btn = document.createElement("button");
+          btn.textContent = char;
+          btn.className = `key w-8 h-8 md:w-10 md:h-10 text-xs md:text-base font-bold`;
+          btn.id = `key-${char}`;
+          if (VOWELS.includes(char)) btn.classList.add("vowel");
+          btn.disabled = true;
+          btn.onclick = () => handleInput(char);
+          keybEl.appendChild(btn);
+        });
+      }
+
+      function handleInput(char) {
+        if (state.waitingForConsonant) {
+          if (VOWELS.includes(char)) {
+            msgEl.textContent = "INGA VOKALER NU! VÄLJ KONSONANT.";
+            return;
+          }
+          processGuess(char, state.wheelVal);
+        } else if (state.buyingVowel) {
+          if (!VOWELS.includes(char)) {
+            msgEl.textContent = "DET DÄR ÄR INTE EN VOKAL.";
+            return;
+          }
+          state.buyingVowel = false;
+          state.score -= 250;
+          updateScore();
+          processGuess(char, 0);
+        }
+      }
+
+      function processGuess(char, value) {
+        const btn = document.getElementById(`key-${char}`);
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        state.guessed.push(char);
+
+        const count = revealLetter(char);
+
+        if (count > 0) {
+          const total = value * count;
+          state.score += total;
+          updateScore();
+          msgEl.textContent = `JA! ${count} STYCKEN '${char}'. ${
+            total > 0 ? "+" + total : ""
+          }`;
+          playSound("ding");
+
+          if (checkWin()) {
+            setTimeout(winGame, 1000);
+          } else {
+            state.waitingForConsonant = false;
+            setTimeout(() => {
+              msgEl.textContent = "DU FÅR FORTSÄTTA! SNURRA ELLER LÖS.";
+              toggleInputs(true, true);
+            }, 1500);
+          }
+        } else {
+          msgEl.textContent = `TYVÄRR, INGA '${char}'.`;
+          playSound("buzz");
+          state.waitingForConsonant = false;
+          setTimeout(() => {
+            msgEl.textContent = "NÄSTA RUNDA (SIMULERAT)";
+            toggleInputs(true, false);
+          }, 1500);
+        }
+
+        updateKeyboard();
+      }
+
+      function checkWin() {
+        let won = true;
+        document.querySelectorAll(".board-cell.active").forEach((c) => {
+          if (!c.querySelector(".letter-content").classList.contains("visible"))
+            won = false;
+        });
+        return won;
+      }
+
+      function winGame() {
+        msgEl.textContent = "GRATTIS! DU VANN!";
+        msgEl.classList.add("blink");
+        playSound("win");
+        toggleInputs(false, false);
+        setTimeout(() => {
+          if (confirm(`Grattis! Du vann med ${state.score} kr! Spela igen?`)) {
+            msgEl.classList.remove("blink");
+            initGame();
+          }
+        }, 2000);
+      }
+
+      // --- CONTROLS ---
+      function toggleInputs(canSpin, fullControl) {
+        document.getElementById("btn-spin").disabled = !canSpin;
+        document.getElementById("btn-solve").disabled = !canSpin;
+        const canBuy = fullControl && state.score >= 250;
+        document.getElementById("btn-vowel").disabled = !canBuy;
+        disableKeyboard();
+      }
+
+      function enableConsonants() {
+        ALPHABET.forEach((char) => {
+          if (!VOWELS.includes(char) && !state.guessed.includes(char)) {
+            document.getElementById(`key-${char}`).disabled = false;
+          }
+        });
+      }
+
+      function enableVowels() {
+        VOWELS.forEach((char) => {
+          if (!state.guessed.includes(char)) {
+            document.getElementById(`key-${char}`).disabled = false;
+          }
+        });
+      }
+
+      function disableKeyboard() {
+        document.querySelectorAll(".key").forEach((k) => (k.disabled = true));
+      }
+
+      function updateKeyboard() {
+        state.guessed.forEach((char) => {
+          const b = document.getElementById(`key-${char}`);
+          if (b) b.disabled = true;
+        });
+      }
+
+      function updateScore() {
+        scoreEl.textContent = state.score;
+      }
+
+      // --- BUTTON EVENTS ---
+      document.getElementById("btn-spin").onclick = spin;
+
+      document.getElementById("btn-vowel").onclick = () => {
+        msgEl.textContent = "VÄLJ EN VOKAL...";
+        state.buyingVowel = true;
+        toggleInputs(false, false);
+        disableKeyboard();
+        enableVowels();
+      };
+
+      document.getElementById("btn-solve").onclick = () => {
+        document.getElementById("solve-modal").classList.remove("hidden");
+        document.getElementById("solve-input").focus();
+      };
+
+      document.getElementById("btn-solve-cancel").onclick = () => {
+        document.getElementById("solve-modal").classList.add("hidden");
+      };
+
+      document.getElementById("btn-solve-confirm").onclick = () => {
+        const val = document.getElementById("solve-input").value.toUpperCase();
+        document.getElementById("solve-modal").classList.add("hidden");
+        document.getElementById("solve-input").value = "";
+
+        if (val === state.puzzle.text) {
+          revealAll();
+          winGame();
+        } else {
+          msgEl.textContent = "FEL SVAR!";
+          playSound("buzz");
+        }
+      };
+
+      // --- AUDIO ---
+      let audioCtx;
+
+      function initAudio() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+
+      function playSound(type) {
+        if (!audioCtx) return;
+        if (audioCtx.state === "suspended") audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+
+        // Retro Start Sound (Coin-ish)
+        if (type === "start") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "square";
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.frequency.setValueAtTime(900, now);
+          osc.frequency.setValueAtTime(1200, now + 0.1);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.3);
+
+          osc.start(now);
+          osc.stop(now + 0.3);
+        }
+        // Standard Sounds
+        else if (type === "ding") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+          osc.start(now);
+          osc.stop(now + 0.5);
+        } else if (type === "buzz") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === "good") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.linearRampToValueAtTime(600, now + 0.2);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === "win") {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.type = "square";
+          osc.frequency.setValueAtTime(500, now);
+          osc.frequency.setValueAtTime(700, now + 0.1);
+          osc.frequency.setValueAtTime(900, now + 0.2);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0, now + 1);
+          osc.start(now);
+          osc.stop(now + 1);
+        }
+      }
+    </script>
+  </body>
+</html>
