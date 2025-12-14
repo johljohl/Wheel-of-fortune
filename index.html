@@ -2,8 +2,11 @@
 <html lang="sv">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lyckohjulet 1984</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Lyckohjulet 1984 - NES Edition (Svenska)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Retro Font -->
@@ -18,189 +21,28 @@
         --nes-white: #ffffff;
         --nes-red: #e70000;
         --nes-green: #00b500;
-        --nes-blue: #0000eb;
+        --nes-blue: #0000eb; /* NES Classic Blue background */
         --nes-yellow: #fbbc04;
-        --board-green: #004400;
+        --board-green: #006600;
         --board-border: #fbbc04;
       }
 
       body {
-        background-color: var(--nes-black);
+        background-color: var(--nes-blue);
         color: var(--nes-white);
         font-family: "Press Start 2P", cursive;
         overflow-x: hidden;
+        overflow-y: auto; /* Tillåt scroll */
         touch-action: manipulation;
         user-select: none;
         margin: 0;
         padding: 0;
-        height: 100vh;
+        height: 100vh; /* Sätt höjd till viewport */
         display: flex;
         flex-direction: column;
       }
 
-      /* --- START SCREEN --- */
-      #start-screen {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #000;
-        z-index: 100;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-      }
-
-      .logo-title {
-        font-size: clamp(20px, 5vw, 60px);
-        color: var(--nes-yellow);
-        text-shadow: 4px 4px var(--nes-red);
-        margin-bottom: 20px;
-        line-height: 1.5;
-      }
-
-      .copyright {
-        font-size: clamp(8px, 2vw, 14px);
-        color: #fff;
-        margin-top: 50px;
-      }
-
-      .press-start {
-        margin-top: 40px;
-        font-size: clamp(12px, 3vw, 20px);
-        color: var(--nes-green);
-      }
-
-      /* --- SPELBRÄDET (GRID SYSTEM) --- */
-      .board-frame {
-        background-color: var(--board-green);
-        border: 8px solid var(--board-border);
-        border-radius: 4px;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
-        padding: 10px;
-        display: grid;
-        grid-template-rows: repeat(4, 1fr);
-        gap: 4px;
-        width: 100%;
-        max-width: 700px;
-        aspect-ratio: 16/9;
-      }
-
-      .board-row {
-        display: grid;
-        grid-template-columns: repeat(14, 1fr);
-        gap: 2px;
-      }
-
-      .board-cell {
-        background-color: var(--board-green);
-        border: 1px solid transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(8px, 2.5vw, 24px);
-        color: black;
-        position: relative;
-      }
-
-      .board-cell.active {
-        background-color: var(--nes-white);
-        border: 2px solid #888;
-        box-shadow: inset 2px 2px 0px #ddd, inset -2px -2px 0px #444;
-      }
-
-      .letter-content {
-        opacity: 0;
-        transform: scale(0);
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
-
-      .letter-content.visible {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      /* --- UI ELEMENT --- */
-      .key {
-        background-color: var(--nes-blue);
-        border: 2px solid var(--nes-white);
-        color: var(--nes-white);
-        box-shadow: 2px 2px 0px #000;
-        cursor: pointer;
-        transition: transform 0.1s;
-      }
-      .key:active {
-        transform: translate(2px, 2px);
-        box-shadow: none;
-      }
-      .key:disabled {
-        background-color: #333;
-        color: #555;
-        border-color: #555;
-        cursor: not-allowed;
-        transform: translate(2px, 2px);
-        box-shadow: none;
-      }
-      .key.vowel {
-        background-color: var(--nes-red);
-      }
-
-      .retro-btn {
-        border: 3px solid white;
-        padding: 10px;
-        font-family: inherit;
-        text-transform: uppercase;
-        font-size: 10px;
-        cursor: pointer;
-      }
-      .retro-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      #wheel-container {
-        position: relative;
-        width: 200px;
-        height: 200px;
-        margin: 0 auto;
-      }
-      @media (min-width: 768px) {
-        #wheel-container {
-          width: 280px;
-          height: 280px;
-        }
-        .retro-btn {
-          font-size: 14px;
-          padding: 15px;
-        }
-      }
-
-      #arrow {
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 20px solid white;
-        z-index: 10;
-      }
-
-      .blink {
-        animation: blinker 1s steps(2, start) infinite;
-      }
-      @keyframes blinker {
-        50% {
-          opacity: 0;
-        }
-      }
-
-      /* CRT Overlay */
+      /* --- SCANLINES & CRT EFFECT --- */
       .scanlines {
         position: fixed;
         top: 0;
@@ -222,315 +64,632 @@
         z-index: 999;
       }
 
-      #game-container {
-        display: none; /* Dölj spelet i början */
-        flex-grow: 1;
+      /* --- SCREENS --- */
+      .screen {
+        width: 100%;
+        min-height: 100%; /* Fyll minst skärmen */
+        display: none;
         flex-direction: column;
         align-items: center;
+        justify-content: flex-start;
+      }
+      .screen.active {
+        display: flex;
+      }
+
+      /* --- START SCREEN --- */
+      #start-screen {
+        background-color: #000;
+        z-index: 50;
+        justify-content: center;
+        position: fixed; /* Täck allt */
+        top: 0;
+        left: 0;
+        height: 100%;
+      }
+      .logo-title {
+        font-size: clamp(24px, 5vw, 60px);
+        color: var(--nes-yellow);
+        text-shadow: 4px 4px var(--nes-red), 8px 8px #000;
+        margin-bottom: 40px;
+        line-height: 1.2;
+        text-align: center;
+      }
+      .menu-option {
+        margin: 10px;
+        color: #888;
+        cursor: pointer;
+        font-size: clamp(12px, 2.5vw, 18px);
+      }
+      .menu-option.selected {
+        color: var(--nes-white);
+      }
+      .menu-option.selected::before {
+        content: "►";
+        margin-right: 10px;
+        color: var(--nes-red);
+      }
+
+      /* --- GAME UI --- */
+      #game-screen {
+        background-color: var(--nes-blue);
+        padding-top: 5px;
+        padding-bottom: 0;
+      }
+
+      /* Player HUD (Top) */
+      .player-hud {
+        display: flex;
         width: 100%;
+        max-width: 800px;
+        justify-content: space-evenly;
+        margin-bottom: 5px; /* Mindre marginal */
+        background: #000;
+        border: 2px solid #fff;
+        padding: 5px;
+        min-height: 70px; /* Lite kompaktare */
+        align-items: flex-start;
+        flex-shrink: 0;
+      }
+      .player-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 30%;
+      }
+      .avatar-container {
+        width: 25px;
+        height: 25px;
+        margin-bottom: 2px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .avatar {
+        width: 2px;
+        height: 2px;
+        background: transparent;
+        box-shadow: 5px 0 0 0 #ccc, 10px 0 0 0 #ccc, 15px 0 0 0 #ccc,
+          20px 0 0 0 #ccc, 25px 0 0 0 #ccc, 5px 5px 0 0 #ccc, 25px 5px 0 0 #ccc,
+          5px 10px 0 0 #ccc, 10px 10px 0 0 #000, 20px 10px 0 0 #000,
+          25px 10px 0 0 #ccc, 5px 15px 0 0 #ccc, 25px 15px 0 0 #ccc,
+          5px 20px 0 0 #ccc, 10px 20px 0 0 #000, 15px 20px 0 0 #000,
+          20px 20px 0 0 #000, 25px 20px 0 0 #ccc, 10px 25px 0 0 #ccc,
+          15px 25px 0 0 #ccc, 20px 25px 0 0 #ccc;
+        position: relative;
+        left: -12px;
+        top: -10px;
+      }
+      .player-name {
+        font-size: 8px;
+        color: var(--nes-red);
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        text-align: center;
+      }
+      .player-score {
+        font-size: 10px;
+        color: var(--nes-white);
+        text-align: center;
+      }
+
+      /* Board - FÖRSTORAD */
+      .board-frame {
+        background-color: var(--board-green);
+        border: 4px solid var(--board-border);
+        padding: 4px;
+        display: grid;
+        grid-template-rows: repeat(4, 1fr);
+        gap: 2px;
+        width: 98%;
+        max-width: 800px; /* Tillåt bredare bräde */
+        aspect-ratio: auto;
+        min-height: 180px; /* ÖKAD HÖJD (Var 120px) */
+        flex-shrink: 0; /* Förhindra att den krymper för mycket */
+        box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+        margin-bottom: 10px;
+      }
+      /* ÖKAD RADHÖJD */
+      .board-row {
+        display: grid;
+        grid-template-columns: repeat(14, 1fr);
+        gap: 1px;
+        height: 38px;
+      } /* Var 25px */
+
+      @media (min-width: 600px) {
+        .board-row {
+          height: 55px;
+          gap: 3px;
+        } /* Ännu större på desktop */
+        .board-frame {
+          padding: 10px;
+          border-width: 6px;
+          margin-bottom: 15px;
+          min-height: 250px;
+        }
+      }
+
+      .board-cell {
+        background-color: var(--board-green);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* ÖKAD FONTSTORLEK */
+        font-size: clamp(12px, 3.5vw, 28px); /* Var 8-20px */
+        color: black;
+        position: relative;
+      }
+      .board-cell.active {
+        background-color: var(--nes-white);
+        box-shadow: inset 1px 1px #fff, inset -1px -1px #888;
+      }
+      .letter-content {
+        opacity: 0;
+        color: #000;
+      }
+      .letter-content.visible {
+        opacity: 1;
+      }
+
+      /* Category Box */
+      .category-box {
+        background: #000;
+        border: 2px solid var(--nes-white);
+        color: var(--nes-white);
+        padding: 3px 10px;
+        margin: 2px 0;
+        font-size: 9px;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+
+      /* Message Area */
+      #msg-area {
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin: 2px 0;
+        flex-shrink: 0;
+      }
+
+      /* Keyboard / Controls */
+      #controls-area {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #000;
+        padding: 10px 5px 30px 5px; /* Extra padding i botten (30px) */
+        border-top: 4px solid #fff;
+        margin-top: auto; /* Tryck ner till botten */
+        flex-shrink: 0;
+      }
+      .key {
+        background-color: var(--nes-blue);
+        border: 2px solid var(--nes-white);
+        color: var(--nes-white);
+        width: clamp(26px, 8.5vw, 40px); /* Något bredare för att fylla ut */
+        height: clamp(32px, 9.5vw, 45px); /* Något högre */
+        margin: 2px;
+        font-size: clamp(10px, 3.5vw, 16px);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+      }
+      .key:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        border-color: #555;
+      }
+      .key.vowel {
+        background-color: var(--nes-red);
+      }
+
+      .action-btn {
+        padding: 8px 10px;
+        background: var(--nes-red);
+        color: white;
+        border: 2px solid white;
+        font-family: inherit;
+        cursor: pointer;
+        margin: 0 2px;
+        text-transform: uppercase;
+        font-size: 9px;
+        min-width: 60px;
+      }
+      @media (min-width: 600px) {
+        .action-btn {
+          font-size: 12px;
+          padding: 10px 20px;
+          margin: 0 5px;
+          border-width: 3px;
+        }
+      }
+      .action-btn:hover {
+        background: #ff4444;
+      }
+      .action-btn:disabled {
+        background: #555;
+        color: #888;
+      }
+
+      /* --- WHEEL OVERLAY --- */
+      #wheel-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 60;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #wheel-overlay.active {
+        display: flex;
+      }
+
+      #power-meter-container {
+        width: 300px;
+        height: 30px;
+        border: 4px solid white;
+        margin-top: 20px;
+        background: #000;
+        position: relative;
+        display: none;
+      }
+      #power-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(to right, #0f0, #ff0, #f00);
+        transition: width 0.05s linear;
+      }
+
+      .spin-msg {
+        color: var(--nes-yellow);
+        margin-bottom: 20px;
+        font-size: 14px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      #wheel-canvas {
+        width: 300px;
+        height: 300px;
+        margin-bottom: 20px;
+      }
+      #arrow-pointer {
+        position: absolute;
+        top: 50%;
+        right: 10px;
       }
     </style>
   </head>
   <body>
     <div class="scanlines"></div>
 
-    <!-- STARTSKÄRM -->
-    <div id="start-screen" onclick="startGameFlow()">
+    <!-- 1. START SCREEN -->
+    <div id="start-screen" class="screen active">
       <div class="logo-title">LYCKO<br />HJULET</div>
 
-      <div class="press-start blink">TRYCK PÅ START</div>
-      <!-- "PRESS START" -->
+      <div class="menu-option selected" onclick="startGame()">1 SPELARE</div>
+      <div class="menu-option">2 SPELARE</div>
+      <div class="menu-option">3 SPELARE</div>
 
-      <div class="copyright">
-        TM AND © 1984 SVT<br /><br />
-        LICENSED BY NINTENDO<br />
-        FOR PLAY ON THE<br />
-        NES
+      <div
+        style="
+          margin-top: 60px;
+          font-size: 10px;
+          color: #fff;
+          text-align: center;
+        "
+      >
+        © 1984 GAMETEK<br />ALLA RÄTTIGHETER FÖRBEHÅLLNA
       </div>
     </div>
 
-    <!-- SPELCONTAINER (Dold först) -->
-    <div id="game-container">
-      <!-- Header -->
-      <header
-        class="w-full bg-blue-900 border-b-4 border-white p-3 text-center mb-2"
-      >
-        <h1
-          class="text-yellow-400 text-lg md:text-2xl"
-          style="text-shadow: 2px 2px #ff0000"
-        >
-          LYCKOHJULET
-        </h1>
-      </header>
-
-      <!-- Main Game Area -->
-      <main
-        class="w-full max-w-5xl px-2 flex flex-col items-center flex-grow justify-start"
-      >
-        <!-- SPELBRÄDET -->
-        <div id="game-board" class="board-frame mb-4">
-          <!-- Rader genereras av JS -->
+    <!-- 2. GAME SCREEN -->
+    <div id="game-screen" class="screen">
+      <!-- Player HUD -->
+      <div class="player-hud">
+        <!-- Player 1 -->
+        <div class="player-card">
+          <div class="avatar-container">
+            <div class="avatar"></div>
+          </div>
+          <div class="player-name">SPELARE 1</div>
+          <div class="player-score" id="score-display">0000</div>
         </div>
 
-        <!-- INFO RAD -->
-        <div
-          class="flex justify-between w-full max-w-[700px] mb-4 text-xs md:text-sm"
-        >
-          <div class="bg-black border border-white p-2 text-cyan-400">
-            KAT: <span id="category" class="text-white">...</span>
+        <!-- CPU Players (Visual) -->
+        <div class="player-card" style="opacity: 0.6">
+          <div class="avatar-container">
+            <div class="avatar" style="filter: hue-rotate(90deg)"></div>
           </div>
-          <div class="bg-black border border-white p-2 text-yellow-400">
-            KR: <span id="score" class="text-white">0</span>
-          </div>
+          <div class="player-name">DATOR 2</div>
+          <div class="player-score">0000</div>
         </div>
 
-        <!-- CONTROLS CONTAINER -->
-        <div
-          class="flex flex-col md:flex-row gap-4 w-full items-center justify-center"
-        >
-          <!-- Hjul -->
-          <div class="flex-none order-2 md:order-1">
-            <div id="wheel-container">
-              <div id="arrow"></div>
-              <canvas id="wheelCanvas"></canvas>
-            </div>
+        <div class="player-card" style="opacity: 0.6">
+          <div class="avatar-container">
+            <div class="avatar" style="filter: hue-rotate(180deg)"></div>
           </div>
+          <div class="player-name">DATOR 3</div>
+          <div class="player-score">0000</div>
+        </div>
+      </div>
 
-          <!-- Panel -->
-          <div
-            class="flex-grow flex flex-col gap-3 w-full max-w-lg order-1 md:order-2"
+      <!-- Category -->
+      <div class="category-box" id="category-display">KATEGORI</div>
+
+      <!-- The Board -->
+      <div class="board-frame" id="board-container">
+        <!-- Grid generated by JS -->
+      </div>
+
+      <!-- Message Area -->
+      <div id="msg-area">
+        <p
+          id="game-msg"
+          style="
+            color: var(--nes-yellow);
+            font-size: 10px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+          "
+        >
+          TRYCK PÅ SNURRA FÖR ATT STARTA
+        </p>
+      </div>
+
+      <!-- Controls -->
+      <div id="controls-area">
+        <div
+          style="
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+          "
+        >
+          <button
+            id="btn-spin"
+            class="action-btn"
+            onclick="startSpinSequence()"
           >
-            <!-- Meddelande -->
-            <div
-              class="bg-black border-2 border-green-500 p-3 min-h-[60px] flex items-center justify-center text-center"
-            >
-              <p
-                id="message"
-                class="text-green-500 text-xs md:text-sm leading-relaxed"
-              >
-                VÄLKOMMEN! KLICKA PÅ SNURRA.
-              </p>
-            </div>
-
-            <!-- Knappar -->
-            <div class="flex gap-2 justify-center">
-              <button
-                id="btn-spin"
-                class="retro-btn bg-yellow-500 text-black hover:bg-yellow-400"
-              >
-                SNURRA
-              </button>
-              <button
-                id="btn-solve"
-                class="retro-btn bg-cyan-600 text-white hover:bg-cyan-500"
-              >
-                LÖS
-              </button>
-              <button
-                id="btn-vowel"
-                class="retro-btn bg-red-600 text-white hover:bg-red-500"
-                disabled
-              >
-                KÖP VOKAL (250)
-              </button>
-            </div>
-
-            <!-- Tangentbord -->
-            <div
-              id="keyboard"
-              class="flex flex-wrap justify-center gap-1 mt-2"
-            ></div>
-          </div>
+            SNURRA
+          </button>
+          <button
+            id="btn-buy"
+            class="action-btn"
+            disabled
+            onclick="buyVowelMode()"
+          >
+            KÖP VOKAL ($250)
+          </button>
+          <button id="btn-solve" class="action-btn" onclick="solveMode()">
+            LÖS
+          </button>
         </div>
-      </main>
+        <div
+          id="keyboard"
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+          "
+        >
+          <!-- Keys generated -->
+        </div>
+      </div>
     </div>
 
-    <!-- Lös Modal -->
+    <!-- 3. WHEEL OVERLAY (Spinning Phase) -->
+    <div id="wheel-overlay">
+      <p id="spin-status-text" class="spin-msg">
+        TRYCK FÖR ATT<br />VÄLJA KRAFT!
+      </p>
+
+      <!-- The Wheel -->
+      <div style="position: relative; width: 300px; height: 300px">
+        <div
+          style="
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #fff;
+            z-index: 10;
+          "
+        ></div>
+        <canvas id="wheel-canvas" width="300" height="300"></canvas>
+      </div>
+
+      <!-- Power Meter -->
+      <div id="power-meter-container">
+        <div id="power-bar"></div>
+      </div>
+
+      <button
+        id="power-btn"
+        class="action-btn"
+        style="margin-top: 20px; width: 200px; font-size: 16px"
+      >
+        STOPP
+      </button>
+    </div>
+
+    <!-- Solve Modal -->
     <div
       id="solve-modal"
       class="fixed inset-0 z-50 bg-black bg-opacity-90 hidden flex items-center justify-center"
     >
-      <div
-        class="bg-blue-800 border-4 border-yellow-400 p-6 w-11/12 max-w-md text-center"
-      >
-        <h2 class="text-yellow-400 mb-4">SKRIV LÖSNINGEN:</h2>
+      <div class="border-4 border-white bg-blue-900 p-5 text-center">
+        <h2 class="text-yellow-400 mb-4">LÖS PUSSLET</h2>
         <input
           type="text"
           id="solve-input"
-          class="w-full p-3 mb-4 text-black font-bold uppercase"
-          autocomplete="off"
+          class="p-2 text-black uppercase w-full mb-4 font-bold"
+          autofocus
         />
-        <div class="flex justify-center gap-4">
-          <button id="btn-solve-cancel" class="retro-btn bg-red-500">
+        <div>
+          <button
+            class="action-btn bg-red-500"
+            onclick="document.getElementById('solve-modal').classList.add('hidden')"
+          >
             AVBRYT
           </button>
-          <button id="btn-solve-confirm" class="retro-btn bg-green-500">
-            GISSA
+          <button class="action-btn bg-green-500" onclick="confirmSolve()">
+            OK
           </button>
         </div>
       </div>
     </div>
 
     <script>
-      // --- DATA ---
+      // --- GAME DATA (TRANSLATED) ---
       const PUZZLES = [
-        { text: "DET VAR BÄTTRE FÖRR", category: "ORDSPRÅK" },
-        { text: "KÖTTBULLAR MED MOS", category: "MATRÄTT" },
-        { text: "EN IDOG MYRA", category: "DJUR" },
-        { text: "GLAD SOM EN SPELMAN", category: "IDIOM" },
-        { text: "HELA HAVET STORMAR", category: "LEK" },
-        { text: "ATT VARA ELLER INTE VARA", category: "CITAT" },
-        { text: "PANNKAKSTÅRTA", category: "MAT & DRYCK" },
-        { text: "TOMTEN ÄR FAR TILL ALLA BARNEN", category: "FILMTITEL" },
+        { text: "SUPER MARIO BROS", category: "SPELTITEL" },
+        { text: "NINTENDO ENTERTAINMENT", category: "KONSOL" },
+        { text: "LEGEND OF ZELDA", category: "SPELTITEL" },
+        { text: "DET ÄR EN HEMLIGHET", category: "FRAS" },
+        { text: "TACK MARIO", category: "FRAS" },
+        { text: "DONKEY KONG", category: "KARAKTÄR" },
+        { text: "SVAMPRIKET", category: "PLATS" },
+        { text: "BÄTTRE SENT ÄN ALDRIG", category: "ORDSPRÅK" },
+        { text: "INGEN KO PÅ ISEN", category: "ORDSPRÅK" },
       ];
 
       const WHEEL_SEGMENTS = [
         { val: 500, color: "#F00" },
-        { val: 200, color: "#00F" },
+        { val: 200, color: "#FFF", textCol: "#000" },
+        { val: 0, text: "STÅ ÖVER", color: "#FF0", textCol: "#000" },
+        { val: 750, color: "#00F" },
+        { val: 300, color: "#0F0" },
         { val: 0, text: "BANKRUTT", color: "#000", textCol: "#FFF" },
-        { val: 600, color: "#0B0" },
-        { val: 300, color: "#FF0" },
-        { val: 400, color: "#0FF" },
-        { val: 0, text: "TURA OM", color: "#FFF", textCol: "#000" },
-        { val: 750, color: "#F0F" },
-        { val: 1500, color: "#F00" },
-        { val: 250, color: "#00F" },
-        { val: 900, color: "#0B0" },
-        { val: 350, color: "#FF0" },
+        { val: 400, color: "#F0F" },
+        { val: 600, color: "#F00" },
+        { val: 250, color: "#FFF", textCol: "#000" },
+        { val: 900, color: "#00F" },
+        { val: 1000, color: "#FFD700", textCol: "#000" },
+        { val: 150, color: "#0F0" },
       ];
 
-      const ROWS = 4;
-      const COLS = 14;
       const VOWELS = ["A", "E", "I", "O", "U", "Y", "Å", "Ä", "Ö"];
-      const CONSONANTS = "BCDFGHJKLMNPQRSTVWXZ".split("");
       const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ".split("");
 
       // --- STATE ---
       let state = {
-        puzzleIndex: 0,
-        puzzle: {},
+        puzzle: null,
         guessed: [],
         score: 0,
-        wheelVal: 0,
-        spinning: false,
-        waitingForConsonant: false,
-        canBuyVowel: false,
+        spinVal: 0,
+        phase: "START", // START, GAME, SPIN_POWER, SPINNING, SOLVE
+        power: 0,
+        powerDir: 1,
+        wheelAngle: 0,
       };
 
       // --- DOM ---
-      const boardEl = document.getElementById("game-board");
-      const canvas = document.getElementById("wheelCanvas");
-      const ctx = canvas.getContext("2d");
-      const msgEl = document.getElementById("message");
-      const scoreEl = document.getElementById("score");
-      const catEl = document.getElementById("category");
-      const keybEl = document.getElementById("keyboard");
+      const startScreen = document.getElementById("start-screen");
+      const gameScreen = document.getElementById("game-screen");
+      const wheelOverlay = document.getElementById("wheel-overlay");
+      const boardContainer = document.getElementById("board-container");
+      const keybContainer = document.getElementById("keyboard");
+      const msgEl = document.getElementById("game-msg");
+      const powerBar = document.getElementById("power-bar");
+      const powerBtn = document.getElementById("power-btn");
+      const scoreDisplay = document.getElementById("score-display");
+      const catDisplay = document.getElementById("category-display");
 
-      // --- STARTUP LOGIC ---
-      function startGameFlow() {
-        // Init ljudcontext vid första klick
-        initAudio();
-        playSound("start");
-
-        // Blinkande effekt på starttexten innan byte
-        const startText = document.querySelector(".press-start");
-        startText.style.animation = "none";
-        startText.style.opacity = "1";
-
-        setTimeout(() => {
-          document.getElementById("start-screen").style.display = "none";
-          document.getElementById("game-container").style.display = "flex";
-          initGame();
-        }, 1000);
+      // --- AUDIO (Simple Synth) ---
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      function playTone(freq, type, dur) {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
       }
 
       // --- INIT ---
-      function initGame() {
-        createBoardGrid();
-        createKeyboard();
+      function startGame() {
+        playTone(440, "square", 0.5); // Start sound
+        startScreen.classList.remove("active");
+        gameScreen.classList.add("active");
         loadPuzzle();
-        resizeCanvas();
-        drawWheel();
-        window.addEventListener("resize", () => {
-          resizeCanvas();
-          drawWheel();
-        });
-      }
-
-      function resizeCanvas() {
-        const container = document.getElementById("wheel-container");
-        if (container) {
-          canvas.width = container.clientWidth;
-          canvas.height = container.clientHeight;
-        }
-      }
-
-      // --- BOARD LOGIC (TV STYLE) ---
-      function createBoardGrid() {
-        boardEl.innerHTML = "";
-        for (let r = 0; r < ROWS; r++) {
-          const rowDiv = document.createElement("div");
-          rowDiv.className = "board-row";
-          for (let c = 0; c < COLS; c++) {
-            const cell = document.createElement("div");
-            cell.className = "board-cell";
-            cell.id = `cell-${r}-${c}`;
-
-            const span = document.createElement("div");
-            span.className = "letter-content";
-            cell.appendChild(span);
-
-            rowDiv.appendChild(cell);
-          }
-          boardEl.appendChild(rowDiv);
-        }
+        createKeyboard();
+        drawWheelStatic();
+        updateUI();
       }
 
       function loadPuzzle() {
-        // Reset
         state.puzzle = PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
         state.guessed = [];
         state.score = 0;
-        state.waitingForConsonant = false;
-        updateScore();
-        catEl.textContent = state.puzzle.category;
-        toggleInputs(true, false);
+        state.phase = "GAME";
 
-        // CLEAR BOARD
-        document.querySelectorAll(".board-cell").forEach((c) => {
-          c.classList.remove("active");
-          c.querySelector(".letter-content").textContent = "";
-          c.querySelector(".letter-content").classList.remove("visible");
-        });
+        // Build Board
+        boardContainer.innerHTML = "";
+        // 4 rows, 14 cols grid
+        for (let r = 0; r < 4; r++) {
+          const row = document.createElement("div");
+          row.className = "board-row";
+          let rowHtml = "";
+          for (let c = 0; c < 14; c++) {
+            rowHtml += `<div class="board-cell" id="c-${r}-${c}"><span class="letter-content"></span></div>`;
+          }
+          row.innerHTML = rowHtml;
+          boardContainer.appendChild(row);
+        }
 
-        // LAYOUT ALGORITHM
+        // Place Text with Safer Logic
         const words = state.puzzle.text.split(" ");
-
-        let currentLineText = "";
+        let currentLine = "";
         let lines = [];
 
-        // Bygg rader
-        for (let w of words) {
-          if ((currentLineText + w).length <= COLS) {
-            currentLineText += (currentLineText.length > 0 ? " " : "") + w;
-          } else {
-            lines.push(currentLineText);
-            currentLineText = w;
-          }
-        }
-        if (currentLineText) lines.push(currentLineText);
+        words.forEach((w) => {
+          // Check if adding the word AND a space (if not first word) fits
+          let testLine = currentLine.length > 0 ? currentLine + " " + w : w;
 
-        // Centrera raderna
-        let startRow = Math.floor((ROWS - lines.length) / 2);
+          if (testLine.length <= 14) {
+            currentLine = testLine;
+          } else {
+            lines.push(currentLine);
+            currentLine = w;
+          }
+        });
+        if (currentLine) lines.push(currentLine);
+
+        const startRow = Math.floor((4 - lines.length) / 2);
         lines.forEach((line, i) => {
           const r = startRow + i;
-          const startCol = Math.floor((COLS - line.length) / 2);
+          const startCol = Math.floor((14 - line.length) / 2);
           for (let j = 0; j < line.length; j++) {
             const char = line[j];
             if (char !== " ") {
-              const cellId = `cell-${r}-${startCol + j}`;
-              const cell = document.getElementById(cellId);
+              const cell = document.getElementById(`c-${r}-${startCol + j}`);
               if (cell) {
+                // Safety check to prevent crash
                 cell.classList.add("active");
                 cell.dataset.char = char;
               }
@@ -538,48 +697,106 @@
           }
         });
 
-        updateKeyboard();
+        catDisplay.innerText = state.puzzle.category;
+        updateUI();
       }
 
-      function revealLetter(char) {
-        let count = 0;
-        document.querySelectorAll(".board-cell.active").forEach((cell) => {
-          if (cell.dataset.char === char) {
-            const content = cell.querySelector(".letter-content");
-            content.textContent = char;
-            content.classList.add("visible");
-            count++;
-          }
-        });
-        return count;
+      // --- SPIN SEQUENCE ---
+      let powerInterval;
+      let spinAnim;
+
+      function startSpinSequence() {
+        if (state.phase !== "GAME") return;
+        state.phase = "SPIN_POWER";
+        wheelOverlay.classList.add("active");
+        document.getElementById("power-meter-container").style.display =
+          "block";
+        document.getElementById("spin-status-text").innerText =
+          "TRYCK FÖR ATT\nVÄLJA KRAFT!";
+        powerBtn.innerText = "STOPPA KRAFT";
+
+        // Start Power Bar Animation
+        state.power = 0;
+        state.powerDir = 2; // Speed
+        powerInterval = setInterval(() => {
+          state.power += state.powerDir;
+          if (state.power >= 100 || state.power <= 0) state.powerDir *= -1;
+          powerBar.style.width = state.power + "%";
+        }, 16);
+
+        powerBtn.onclick = lockPower;
       }
 
-      function revealAll() {
-        document.querySelectorAll(".board-cell.active").forEach((cell) => {
-          const content = cell.querySelector(".letter-content");
-          content.textContent = cell.dataset.char;
-          content.classList.add("visible");
-        });
+      function lockPower() {
+        clearInterval(powerInterval);
+        playTone(200, "sawtooth", 0.2);
+        state.phase = "SPINNING";
+        powerBtn.style.display = "none"; // Hide button during spin
+        document.getElementById("spin-status-text").innerText = "SNURRAR...";
+
+        // Spin Logic
+        let speed = (state.power / 100) * 0.8 + 0.2; // Min 0.2, Max 1.0
+        animateWheel(speed);
       }
 
-      // --- WHEEL LOGIC ---
-      let angle = 0;
-      let speed = 0;
+      function animateWheel(speed) {
+        state.wheelAngle += speed;
+        speed *= 0.985; // Friction
+        drawWheelStatic();
 
-      function drawWheel() {
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w / 2;
-        const cy = h / 2;
-        const r = w / 2 - 5;
+        if (speed > 0.002) {
+          spinAnim = requestAnimationFrame(() => animateWheel(speed));
+          // Click sound
+          if (Math.floor(state.wheelAngle * 10) % 5 === 0)
+            playTone(100, "square", 0.05);
+        } else {
+          finishSpin();
+        }
+      }
+
+      function finishSpin() {
+        cancelAnimationFrame(spinAnim);
+
+        // Calculate Result
+        const segAngle = (2 * Math.PI) / WHEEL_SEGMENTS.length;
+        const normAngle = state.wheelAngle % (2 * Math.PI);
+        // Pointer is at Top (3PI/2 or 270deg).
+        // Angle increases clockwise.
+        // Logic: Index = (TotalAngle + Offset) converted to index
+        // Simplified: The segment AT the pointer.
+        // Pointer is at -90deg (top).
+        let effectiveAngle = (3 * Math.PI) / 2 - normAngle;
+        if (effectiveAngle < 0) effectiveAngle += 2 * Math.PI;
+        const idx = Math.floor(effectiveAngle / segAngle);
+        const res = WHEEL_SEGMENTS[idx];
+
+        state.spinVal = res.val;
+
+        // Show result briefly
+        document.getElementById("spin-status-text").innerText = res.text
+          ? res.text
+          : "$" + res.val;
+
+        setTimeout(() => {
+          wheelOverlay.classList.remove("active");
+          powerBtn.style.display = "block"; // Reset for next time
+          handleSpinResult(res);
+        }, 1500);
+      }
+
+      function drawWheelStatic() {
+        const cvs = document.getElementById("wheel-canvas");
+        const ctx = cvs.getContext("2d");
+        const cx = 150,
+          cy = 150,
+          r = 145;
         const segSize = (2 * Math.PI) / WHEEL_SEGMENTS.length;
 
-        ctx.clearRect(0, 0, w, h);
+        ctx.clearRect(0, 0, 300, 300);
 
         WHEEL_SEGMENTS.forEach((seg, i) => {
-          const a1 = angle + i * segSize;
+          const a1 = state.wheelAngle + i * segSize;
           const a2 = a1 + segSize;
-
           ctx.beginPath();
           ctx.moveTo(cx, cy);
           ctx.arc(cx, cy, r, a1, a2);
@@ -587,341 +804,188 @@
           ctx.fill();
           ctx.stroke();
 
+          // Text
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(a1 + segSize / 2);
           ctx.textAlign = "right";
-          ctx.fillStyle = seg.textCol || "#FFF";
-          ctx.font = `bold ${w / 20}px Arial`;
-          const label = seg.text ? seg.text : seg.val;
-          ctx.fillText(label, r - 10, 5);
+          ctx.fillStyle = seg.textCol || "#fff";
+          ctx.font = "bold 16px monospace";
+          ctx.fillText(
+            seg.text ? (seg.text.includes("BANK") ? "BANK" : "ÖVER") : seg.val,
+            r - 10,
+            5
+          );
           ctx.restore();
         });
 
+        // Center
         ctx.beginPath();
-        ctx.arc(cx, cy, w / 15, 0, 2 * Math.PI);
-        ctx.fillStyle = "#FFD700";
+        ctx.arc(cx, cy, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = "#DAA520";
         ctx.fill();
-        ctx.stroke();
       }
 
-      function spin() {
-        if (state.spinning) return;
-        state.spinning = true;
-        toggleInputs(false, false);
-        msgEl.textContent = "HJULET SNURRAR...";
-
-        speed = 0.2 + Math.random() * 0.4;
-        requestAnimationFrame(animateSpin);
-      }
-
-      function animateSpin() {
-        angle += speed;
-        speed *= 0.98;
-        drawWheel();
-
-        if (speed > 0.005) {
-          requestAnimationFrame(animateSpin);
-        } else {
-          state.spinning = false;
-          calcResult();
-        }
-      }
-
-      function calcResult() {
-        const segSize = (2 * Math.PI) / WHEEL_SEGMENTS.length;
-        const totalRot = angle % (2 * Math.PI);
-        let effectiveAngle = (3 * Math.PI) / 2 - totalRot;
-        if (effectiveAngle < 0) effectiveAngle += 2 * Math.PI;
-
-        const idx = Math.floor(effectiveAngle / segSize);
-        const result = WHEEL_SEGMENTS[idx];
-
-        handleSpinResult(result);
-      }
-
-      // --- GAMEPLAY LOGIC ---
+      // --- GAME LOGIC ---
       function handleSpinResult(res) {
-        state.wheelVal = res.val;
-
         if (res.text === "BANKRUTT") {
+          playTone(100, "sawtooth", 0.5); // Sad noise
           state.score = 0;
-          updateScore();
-          msgEl.textContent = "BANKRUTT! ÅH NEJ!";
-          playSound("bad");
-          setTimeout(() => {
-            toggleInputs(true, false);
-            msgEl.textContent = "SNURRA IGEN";
-          }, 2000);
-        } else if (res.text === "TURA OM") {
-          msgEl.textContent = "DU MISSAR DIN TUR";
-          playSound("bad");
-          setTimeout(() => {
-            toggleInputs(true, false);
-            msgEl.textContent = "SNURRA IGEN";
-          }, 2000);
+          msgEl.innerText = "BANKRUTT! SNURRA IGEN.";
+          state.phase = "GAME";
+        } else if (res.text === "STÅ ÖVER") {
+          playTone(150, "sawtooth", 0.3);
+          msgEl.innerText = "STÅR ÖVER! SNURRA IGEN.";
+          state.phase = "GAME";
         } else {
-          msgEl.textContent = `${res.val} KR! VÄLJ EN KONSONANT.`;
-          state.waitingForConsonant = true;
-          playSound("good");
-          toggleInputs(false, false);
-          enableConsonants();
+          msgEl.innerText = `$${res.val} - VÄLJ EN KONSONANT`;
+          state.phase = "GUESS_CONSONANT";
+          highlightKeys("CONSONANT");
         }
+        updateUI();
+      }
+
+      function handleKey(char) {
+        if (state.phase === "GUESS_CONSONANT") {
+          if (VOWELS.includes(char)) return; // Only consonants
+          processGuess(char);
+        } else if (state.phase === "BUY_VOWEL") {
+          if (!VOWELS.includes(char)) return; // Only vowels
+          state.score -= 250;
+          processGuess(char);
+        }
+      }
+
+      function processGuess(char) {
+        // Disable key
+        state.guessed.push(char);
+        updateUI(); // Refreshes keyboard
+
+        // Check board
+        let count = 0;
+        document.querySelectorAll(".board-cell.active").forEach((cell) => {
+          if (cell.dataset.char === char) {
+            count++;
+            const span = cell.querySelector(".letter-content");
+            span.innerText = char;
+            span.classList.add("visible");
+            // "Ding" per letter
+            setTimeout(
+              () => playTone(600 + count * 50, "sine", 0.1),
+              count * 200
+            );
+          }
+        });
+
+        if (count > 0) {
+          if (state.phase !== "BUY_VOWEL") state.score += state.spinVal * count;
+          msgEl.innerText = `HITTADE ${count} ${char}! SNURRA, KÖP ELLER LÖS.`;
+          state.phase = "GAME";
+
+          // Check win
+          const left = document.querySelectorAll(
+            ".board-cell.active .letter-content:not(.visible)"
+          ).length;
+          if (left === 0) doWin();
+        } else {
+          playTone(100, "sawtooth", 0.4); // Buzz
+          msgEl.innerText = `INGA ${char}. NÄSTA SPELARE.`;
+          state.phase = "GAME";
+        }
+        updateUI();
       }
 
       function createKeyboard() {
-        keybEl.innerHTML = "";
+        keybContainer.innerHTML = "";
         ALPHABET.forEach((char) => {
-          const btn = document.createElement("button");
-          btn.textContent = char;
-          btn.className = `key w-8 h-8 md:w-10 md:h-10 text-xs md:text-base font-bold`;
-          btn.id = `key-${char}`;
-          if (VOWELS.includes(char)) btn.classList.add("vowel");
-          btn.disabled = true;
-          btn.onclick = () => handleInput(char);
-          keybEl.appendChild(btn);
+          const b = document.createElement("button");
+          b.className = `key ${VOWELS.includes(char) ? "vowel" : ""}`;
+          b.innerText = char;
+          b.onclick = () => handleKey(char);
+          keybContainer.appendChild(b);
         });
       }
 
-      function handleInput(char) {
-        if (state.waitingForConsonant) {
-          if (VOWELS.includes(char)) {
-            msgEl.textContent = "INGA VOKALER NU! VÄLJ KONSONANT.";
-            return;
-          }
-          processGuess(char, state.wheelVal);
-        } else if (state.buyingVowel) {
-          if (!VOWELS.includes(char)) {
-            msgEl.textContent = "DET DÄR ÄR INTE EN VOKAL.";
-            return;
-          }
-          state.buyingVowel = false;
-          state.score -= 250;
-          updateScore();
-          processGuess(char, 0);
-        }
-      }
+      function updateUI() {
+        scoreDisplay.innerText = state.score.toString().padStart(4, "0");
 
-      function processGuess(char, value) {
-        const btn = document.getElementById(`key-${char}`);
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        state.guessed.push(char);
+        // Buttons
+        document.getElementById("btn-spin").disabled = state.phase !== "GAME";
+        document.getElementById("btn-solve").disabled = state.phase !== "GAME";
+        document.getElementById("btn-buy").disabled =
+          state.phase !== "GAME" || state.score < 250;
 
-        const count = revealLetter(char);
-
-        if (count > 0) {
-          const total = value * count;
-          state.score += total;
-          updateScore();
-          msgEl.textContent = `JA! ${count} STYCKEN '${char}'. ${
-            total > 0 ? "+" + total : ""
-          }`;
-          playSound("ding");
-
-          if (checkWin()) {
-            setTimeout(winGame, 1000);
+        // Keys
+        const keys = keybContainer.querySelectorAll(".key");
+        keys.forEach((k) => {
+          const char = k.innerText;
+          if (state.guessed.includes(char)) {
+            k.disabled = true;
+            k.style.opacity = 0.2;
           } else {
-            state.waitingForConsonant = false;
-            setTimeout(() => {
-              msgEl.textContent = "DU FÅR FORTSÄTTA! SNURRA ELLER LÖS.";
-              toggleInputs(true, true);
-            }, 1500);
-          }
-        } else {
-          msgEl.textContent = `TYVÄRR, INGA '${char}'.`;
-          playSound("buzz");
-          state.waitingForConsonant = false;
-          setTimeout(() => {
-            msgEl.textContent = "NÄSTA RUNDA (SIMULERAT)";
-            toggleInputs(true, false);
-          }, 1500);
-        }
+            k.disabled = true; // Default disabled
+            k.style.opacity = 1;
 
-        updateKeyboard();
-      }
-
-      function checkWin() {
-        let won = true;
-        document.querySelectorAll(".board-cell.active").forEach((c) => {
-          if (!c.querySelector(".letter-content").classList.contains("visible"))
-            won = false;
-        });
-        return won;
-      }
-
-      function winGame() {
-        msgEl.textContent = "GRATTIS! DU VANN!";
-        msgEl.classList.add("blink");
-        playSound("win");
-        toggleInputs(false, false);
-        setTimeout(() => {
-          if (confirm(`Grattis! Du vann med ${state.score} kr! Spela igen?`)) {
-            msgEl.classList.remove("blink");
-            initGame();
-          }
-        }, 2000);
-      }
-
-      // --- CONTROLS ---
-      function toggleInputs(canSpin, fullControl) {
-        document.getElementById("btn-spin").disabled = !canSpin;
-        document.getElementById("btn-solve").disabled = !canSpin;
-        const canBuy = fullControl && state.score >= 250;
-        document.getElementById("btn-vowel").disabled = !canBuy;
-        disableKeyboard();
-      }
-
-      function enableConsonants() {
-        ALPHABET.forEach((char) => {
-          if (!VOWELS.includes(char) && !state.guessed.includes(char)) {
-            document.getElementById(`key-${char}`).disabled = false;
+            if (state.phase === "GUESS_CONSONANT" && !VOWELS.includes(char))
+              k.disabled = false;
+            if (state.phase === "BUY_VOWEL" && VOWELS.includes(char))
+              k.disabled = false;
           }
         });
       }
 
-      function enableVowels() {
-        VOWELS.forEach((char) => {
-          if (!state.guessed.includes(char)) {
-            document.getElementById(`key-${char}`).disabled = false;
-          }
-        });
+      function highlightKeys(type) {
+        updateUI(); // Logic is inside updateUI
       }
 
-      function disableKeyboard() {
-        document.querySelectorAll(".key").forEach((k) => (k.disabled = true));
+      function buyVowelMode() {
+        state.phase = "BUY_VOWEL";
+        msgEl.innerText = "VÄLJ EN VOKAL";
+        updateUI();
       }
 
-      function updateKeyboard() {
-        state.guessed.forEach((char) => {
-          const b = document.getElementById(`key-${char}`);
-          if (b) b.disabled = true;
-        });
-      }
-
-      function updateScore() {
-        scoreEl.textContent = state.score;
-      }
-
-      // --- BUTTON EVENTS ---
-      document.getElementById("btn-spin").onclick = spin;
-
-      document.getElementById("btn-vowel").onclick = () => {
-        msgEl.textContent = "VÄLJ EN VOKAL...";
-        state.buyingVowel = true;
-        toggleInputs(false, false);
-        disableKeyboard();
-        enableVowels();
-      };
-
-      document.getElementById("btn-solve").onclick = () => {
+      function solveMode() {
         document.getElementById("solve-modal").classList.remove("hidden");
         document.getElementById("solve-input").focus();
-      };
+      }
 
-      document.getElementById("btn-solve-cancel").onclick = () => {
-        document.getElementById("solve-modal").classList.add("hidden");
-      };
-
-      document.getElementById("btn-solve-confirm").onclick = () => {
-        const val = document.getElementById("solve-input").value.toUpperCase();
+      function confirmSolve() {
+        const guess = document
+          .getElementById("solve-input")
+          .value.toUpperCase();
         document.getElementById("solve-modal").classList.add("hidden");
         document.getElementById("solve-input").value = "";
 
-        if (val === state.puzzle.text) {
-          revealAll();
-          winGame();
+        if (guess === state.puzzle.text) {
+          // Reveal all
+          document
+            .querySelectorAll(".board-cell.active .letter-content")
+            .forEach((s) => {
+              s.innerText = s.parentElement.dataset.char;
+              s.classList.add("visible");
+            });
+          doWin();
         } else {
-          msgEl.textContent = "FEL SVAR!";
-          playSound("buzz");
+          playTone(100, "sawtooth", 0.4);
+          msgEl.innerText = "FEL SVAR!";
         }
+      }
+
+      function doWin() {
+        playTone(500, "square", 0.1);
+        setTimeout(() => playTone(600, "square", 0.1), 150);
+        setTimeout(() => playTone(700, "square", 0.4), 300);
+        msgEl.innerText = "PUSSLET LÖST! DU VANN!";
+        msgEl.classList.add("blink");
+        setTimeout(() => {
+          if (confirm("DU VANN! Spela igen?")) startGame();
+        }, 2000);
+      }
+
+      window.onload = () => {
+        // Init with Start Screen Active
+        drawWheelStatic();
       };
-
-      // --- AUDIO ---
-      let audioCtx;
-
-      function initAudio() {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-      }
-
-      function playSound(type) {
-        if (!audioCtx) return;
-        if (audioCtx.state === "suspended") audioCtx.resume();
-
-        const now = audioCtx.currentTime;
-
-        // Retro Start Sound (Coin-ish)
-        if (type === "start") {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = "square";
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.frequency.setValueAtTime(900, now);
-          osc.frequency.setValueAtTime(1200, now + 0.1);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.linearRampToValueAtTime(0, now + 0.3);
-
-          osc.start(now);
-          osc.stop(now + 0.3);
-        }
-        // Standard Sounds
-        else if (type === "ding") {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(800, now);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-          osc.start(now);
-          osc.stop(now + 0.5);
-        } else if (type === "buzz") {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.type = "sawtooth";
-          osc.frequency.setValueAtTime(150, now);
-          osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.linearRampToValueAtTime(0, now + 0.3);
-          osc.start(now);
-          osc.stop(now + 0.3);
-        } else if (type === "good") {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(400, now);
-          osc.frequency.linearRampToValueAtTime(600, now + 0.2);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.linearRampToValueAtTime(0, now + 0.2);
-          osc.start(now);
-          osc.stop(now + 0.2);
-        } else if (type === "win") {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.type = "square";
-          osc.frequency.setValueAtTime(500, now);
-          osc.frequency.setValueAtTime(700, now + 0.1);
-          osc.frequency.setValueAtTime(900, now + 0.2);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.linearRampToValueAtTime(0, now + 1);
-          osc.start(now);
-          osc.stop(now + 1);
-        }
-      }
     </script>
   </body>
 </html>
